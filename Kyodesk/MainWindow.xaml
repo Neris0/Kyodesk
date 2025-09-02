@@ -1,0 +1,254 @@
+<Window x:Class="SistemaChamadosWpf.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        mc:Ignorable="d"
+        Title="Sistema de Chamados"
+        Height="500" Width="900"
+        WindowStartupLocation="CenterScreen"
+        Background="#F5F6FA"
+        Loaded="Window_Loaded">
+
+    <!-- ====== Recursos (cores + estilos) ====== -->
+    <Window.Resources>
+        <!-- Paleta base (preto/vermelho) -->
+        <SolidColorBrush x:Key="BrandBlack" Color="#121212"/>
+        <SolidColorBrush x:Key="BrandRed"   Color="#E53935"/>
+        <SolidColorBrush x:Key="BrandRedDk" Color="#C62828"/>
+        <SolidColorBrush x:Key="CardBrush"  Color="White"/>
+        <SolidColorBrush x:Key="CardBorder" Color="#E0E0E0"/>
+
+        <!-- Paleta guiada por psicologia das cores -->
+        <!-- Primário / Confiança -->
+        <SolidColorBrush x:Key="BluePrimary"  Color="#2962FF"/>
+        <SolidColorBrush x:Key="BlueHover"    Color="#1E4BDB"/>
+        <SolidColorBrush x:Key="BluePressed"  Color="#1539A8"/>
+
+        <!-- Sucesso / Ação positiva -->
+        <SolidColorBrush x:Key="GreenSuccess" Color="#43A047"/>
+        <SolidColorBrush x:Key="GreenHover"   Color="#2E7D32"/>
+        <SolidColorBrush x:Key="GreenPressed" Color="#1B5E20"/>
+
+        <!-- Atenção / Destaque -->
+        <SolidColorBrush x:Key="AmberAttention" Color="#FB8C00"/>
+        <SolidColorBrush x:Key="AmberHover"     Color="#EF6C00"/>
+        <SolidColorBrush x:Key="AmberPressed"   Color="#E65100"/>
+
+        <!-- Perigo / Crítico -->
+        <SolidColorBrush x:Key="DangerPressed"  Color="#B71C1C"/>
+
+        <!-- Neutro (opcional) -->
+        <SolidColorBrush x:Key="NeutralGray"    Color="#607D8B"/>
+        <SolidColorBrush x:Key="NeutralHover"   Color="#546E7A"/>
+        <SolidColorBrush x:Key="NeutralPressed" Color="#455A64"/>
+
+        <!-- Cabeçalho das colunas do DataGrid -->
+        <Style TargetType="DataGridColumnHeader">
+            <Setter Property="Background" Value="{StaticResource BrandBlack}"/>
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="Height" Value="36"/>
+        </Style>
+
+        <!-- ===== Botão base retangular e acessível ===== -->
+        <Style x:Key="AppButton" TargetType="Button">
+            <Setter Property="Foreground" Value="White"/>
+            <Setter Property="Background" Value="#3949AB"/>
+            <Setter Property="BorderBrush" Value="#1A000000"/>
+            <Setter Property="BorderThickness" Value="0"/>
+            <Setter Property="FontWeight" Value="SemiBold"/>
+            <Setter Property="FontSize" Value="14"/>
+            <Setter Property="Padding" Value="16,10"/>
+            <Setter Property="Height" Value="36"/>
+            <!-- Troque por Width="120" se quiser largura idêntica para todos -->
+            <Setter Property="MinWidth" Value="110"/>
+            <Setter Property="Margin" Value="6,0,0,0"/>
+            <Setter Property="Cursor" Value="Hand"/>
+            <Setter Property="SnapsToDevicePixels" Value="True"/>
+
+            <!-- Template retangular -->
+            <Setter Property="Template">
+                <Setter.Value>
+                    <ControlTemplate TargetType="Button">
+                        <Border x:Name="bg"
+                                Background="{TemplateBinding Background}"
+                                BorderBrush="{TemplateBinding BorderBrush}"
+                                BorderThickness="{TemplateBinding BorderThickness}"
+                                CornerRadius="0">
+                            <ContentPresenter HorizontalAlignment="Center"
+                                              VerticalAlignment="Center"
+                                              RecognizesAccessKey="True"/>
+                        </Border>
+                    </ControlTemplate>
+                </Setter.Value>
+            </Setter>
+
+            <!-- Interações: usa DynamicResource para variar por estilo derivado -->
+            <Style.Triggers>
+                <Trigger Property="IsMouseOver" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ButtonHoverBrush}"/>
+                </Trigger>
+                <Trigger Property="IsPressed" Value="True">
+                    <Setter Property="Background" Value="{DynamicResource ButtonPressedBrush}"/>
+                </Trigger>
+                <Trigger Property="IsEnabled" Value="False">
+                    <Setter Property="Opacity" Value="0.6"/>
+                </Trigger>
+                <Trigger Property="IsKeyboardFocused" Value="True">
+                    <Setter Property="BorderThickness" Value="2"/>
+                    <Setter Property="BorderBrush" Value="#FFFFFFCC"/>
+                </Trigger>
+            </Style.Triggers>
+        </Style>
+
+        <!-- ===== Variantes por intenção ===== -->
+        <!-- Primário / Atualizar (confiança) -->
+        <Style x:Key="BtnPrimary" TargetType="Button" BasedOn="{StaticResource AppButton}">
+            <Setter Property="Background" Value="{StaticResource BluePrimary}"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="ButtonHoverBrush"   Color="#1E4BDB"/>
+                <SolidColorBrush x:Key="ButtonPressedBrush" Color="#1539A8"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- Sucesso / Novo (positivo) -->
+        <Style x:Key="BtnSuccess" TargetType="Button" BasedOn="{StaticResource AppButton}">
+            <Setter Property="Background" Value="{StaticResource GreenSuccess}"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="ButtonHoverBrush"   Color="#2E7D32"/>
+                <SolidColorBrush x:Key="ButtonPressedBrush" Color="#1B5E20"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- Atenção / Detalhes (destaque) -->
+        <Style x:Key="BtnAttention" TargetType="Button" BasedOn="{StaticResource AppButton}">
+            <Setter Property="Background" Value="{StaticResource AmberAttention}"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="ButtonHoverBrush"   Color="#EF6C00"/>
+                <SolidColorBrush x:Key="ButtonPressedBrush" Color="#E65100"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- Perigo / Deslogar (ação crítica) -->
+        <Style x:Key="BtnDanger" TargetType="Button" BasedOn="{StaticResource AppButton}">
+            <Setter Property="Background" Value="{StaticResource BrandRed}"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="ButtonHoverBrush"   Color="#C62828"/>
+                <SolidColorBrush x:Key="ButtonPressedBrush" Color="#B71C1C"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- Opcional: neutro/terciário -->
+        <Style x:Key="BtnNeutral" TargetType="Button" BasedOn="{StaticResource AppButton}">
+            <Setter Property="Background" Value="{StaticResource NeutralGray}"/>
+            <Style.Resources>
+                <SolidColorBrush x:Key="ButtonHoverBrush"   Color="#546E7A"/>
+                <SolidColorBrush x:Key="ButtonPressedBrush" Color="#455A64"/>
+            </Style.Resources>
+        </Style>
+
+        <!-- Chip de Status -->
+        <DataTemplate x:Key="StatusChipTemplate">
+            <Border x:Name="Chip" CornerRadius="10" Padding="8,3" Background="#EAECEF">
+                <TextBlock x:Name="Txt" Text="{Binding Status}" FontWeight="SemiBold" Foreground="#222"/>
+            </Border>
+            <DataTemplate.Triggers>
+                <DataTrigger Binding="{Binding Status}" Value="Aberto">
+                    <Setter TargetName="Chip" Property="Background" Value="#E8F5E9"/>
+                    <Setter TargetName="Txt"  Property="Foreground" Value="#2E7D32"/>
+                    <Setter TargetName="Txt"  Property="Text" Value="Aberto"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="EmAndamento">
+                    <Setter TargetName="Chip" Property="Background" Value="#FFF3E0"/>
+                    <Setter TargetName="Txt"  Property="Foreground" Value="#EF6C00"/>
+                    <Setter TargetName="Txt"  Property="Text" Value="Em andamento"/>
+                </DataTrigger>
+                <DataTrigger Binding="{Binding Status}" Value="Fechado">
+                    <Setter TargetName="Chip" Property="Background" Value="#FFEBEE"/>
+                    <Setter TargetName="Txt"  Property="Foreground" Value="#C62828"/>
+                    <Setter TargetName="Txt"  Property="Text" Value="Fechado"/>
+                </DataTrigger>
+            </DataTemplate.Triggers>
+        </DataTemplate>
+    </Window.Resources>
+
+    <!-- ====== Layout ====== -->
+    <Grid Margin="15">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+
+        <!-- Topo / Header -->
+        <Border Background="{StaticResource BrandBlack}" Padding="14" CornerRadius="12"
+                Grid.Row="0" Margin="0,0,0,12">
+            <DockPanel LastChildFill="True">
+                <!-- Logo -->
+                <Image Width="28" Height="28"
+                       Source="/Assets/logo.png"
+                       Stretch="Uniform"
+                       Margin="0,0,10,0"/>
+                <TextBlock Text="Sistema de Chamados" Foreground="White"
+                           FontSize="16" FontWeight="SemiBold" Margin="0,0,12,0"/>
+                <StackPanel Orientation="Horizontal" HorizontalAlignment="Right" DockPanel.Dock="Right">
+                    <TextBlock Text="Bem-vindo, " Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text="{Binding NomeUsuario}" Foreground="White" FontWeight="Bold"/>
+                    <TextBlock Text=" (" Foreground="White"/>
+                    <TextBlock Text="{Binding EmailUsuario}" Foreground="White"/>
+                    <TextBlock Text=")" Foreground="White"/>
+                </StackPanel>
+            </DockPanel>
+        </Border>
+
+        <!-- Grid de Chamados -->
+        <Border Grid.Row="1" CornerRadius="12" BorderBrush="{StaticResource CardBorder}"
+                BorderThickness="1" Background="{StaticResource CardBrush}" Padding="6">
+            <DataGrid ItemsSource="{Binding Chamados}"
+                      SelectedItem="{Binding ChamadoSelecionado, Mode=TwoWay}"
+                      AutoGenerateColumns="False"
+                      SelectionChanged="DataGrid_SelectionChanged"
+                      AlternatingRowBackground="#FFF5F5F5"
+                      GridLinesVisibility="None"
+                      HeadersVisibility="All"
+                      AlternationCount="2"
+                      CanUserAddRows="False"
+                      CanUserDeleteRows="False"
+                      IsReadOnly="True">
+                <DataGrid.Columns>
+                    <DataGridTextColumn Header="ID" Binding="{Binding Id}" Width="60"/>
+                    <DataGridTextColumn Header="Título" Binding="{Binding Titulo}" Width="*"/>
+
+                    <!-- Status como chip colorido -->
+                    <DataGridTemplateColumn Header="Status" Width="160">
+                        <DataGridTemplateColumn.CellTemplate>
+                            <DataTemplate>
+                                <ContentPresenter Content="{Binding}"
+                                                  ContentTemplate="{StaticResource StatusChipTemplate}"/>
+                            </DataTemplate>
+                        </DataGridTemplateColumn.CellTemplate>
+                    </DataGridTemplateColumn>
+
+                    <DataGridTextColumn Header="Criado em"
+                                        Binding="{Binding DataCriacao, StringFormat=dd/MM/yyyy HH:mm}"
+                                        Width="170"/>
+                    <DataGridTextColumn Header="Responsável"
+                                        Binding="{Binding Responsavel.NomeCompleto}" Width="170"/>
+                </DataGrid.Columns>
+            </DataGrid>
+        </Border>
+
+        <!-- Rodapé / Ações -->
+        <StackPanel Grid.Row="2" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,1,0">
+            <Button Style="{StaticResource BtnPrimary}"   Content="Atualizar"
+                    Command="{Binding AtualizarCommand}"/>
+            <Button Style="{StaticResource BtnSuccess}"   Content="Novo"
+                    Command="{Binding NovoCommand}"/>
+            <Button Style="{StaticResource BtnAttention}" Content="Detalhes"
+                    Command="{Binding DetalhesCommand}" Click="Button_Click"/>
+            <Button Style="{StaticResource BtnDanger}"    Content="Deslogar"
+                    Click="Deslogar_Click" Margin="2"/>
+        </StackPanel>
+    </Grid>
+</Window>
